@@ -32,10 +32,12 @@ void connect_wifi(String cmd, int t){
 }
 
 void get_ip(){
+
   String  IP="";
   char ch=0;
   while(1)
   {
+    blinkDutyLed(8, 100);
     delay(3000);
     Serial.println("IP, where are you?");
     esp8266.println("AT+CIFSR");
@@ -149,13 +151,12 @@ void setup() {
 
 
   // Initialization
-  blinkDutyLed(8, 100);
+  blinkDutyLed(8, 1000);
   Serial.begin(115200);
   Serial.print("Hello");
   esp8266.begin(115200);
   delay(100);
   wifi_init();
-  blinkDutyLed(8, 100);
 }
 
 void loop() {
