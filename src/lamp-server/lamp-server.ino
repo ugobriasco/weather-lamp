@@ -2,17 +2,12 @@
 #include "config.h"
 
 SoftwareSerial esp8266(3, 2); //RX, TX
-String readStr, writeStr;
-int incomingByte = 0;   // for incoming serial data
-int i = 0;
+String readStr; // IO-Carrier
 
-boolean No_IP=false;
-String IP="";
-char temp1='0';
 
-String webpage="";
-String name="<p>Circuit Digest</p>";   //22
-String dat="<p>Data Received Successfully.....</p>";     //21
+/*
+* 1) ESP8266 handler
+*/
 
 void connect_wifi(String cmd, int t){
   int temp=0,i=0;
@@ -36,22 +31,8 @@ void connect_wifi(String cmd, int t){
   Serial.println("Error");
 }
 
-void check4IP(int t1){
-  int t2=millis();
-  while(t2+t1>millis())
-  {
-    while(esp8266.available()>0)
-    {
-      if(esp8266.find("WIFI GOT IP"))
-      {
-        No_IP=true;
-      }
-    }
-  }
-}
-
 void get_ip(){
-  IP="";
+  String  IP="";
   char ch=0;
   while(1)
   {
@@ -126,40 +107,69 @@ void sendwebdata(String webPage){
      }
 }
 
+/*
+* 2) HTTP responses handler
+*/
+
 void sendSomething(){
-  webpage = "<h1>Welcome to Circuit Digest</h1><body bgcolor=f0f0f0>";
-  sendwebdata(webpage);
-  webpage=name;
-  webpage+=dat;
-  sendwebdata(webpage);
+  sendwebdata("<h1>Welcome to The weather Lamp</h1>");
   delay(1000);
   esp8266.println("AT+CIPCLOSE=0");
 }
 
+void sendStatus(){
+  sendwebdata("{'key': 'foo'}");
+  delay(1000);
+  esp8266.println("AT+CIPCLOSE=0");
+}
+
+/*
+* 3) Light handler
+*/
+
+void blinkDutyLed(int channel, int period_ms){
+    digitalWrite(channel, HIGH);
+    delay(period_ms / 2);
+    digitalWrite(channel, LOW);
+    delay(period_ms / 2);
+}
+
+// Manifest weather
+
+
+
+/*
+* Main
+*/
+
 void setup() {
+
+  // Led declaration
+  pinMode(8, OUTPUT);
+
+
+  // Initialization
+  blinkDutyLed(8, 100);
   Serial.begin(115200);
   Serial.print("Hello");
   esp8266.begin(115200);
   delay(100);
   wifi_init();
+  blinkDutyLed(8, 100);
 }
 
 void loop() {
       while(!esp8266.available()) { };
+
       readStr = esp8266.readString();
       Serial.print(readStr);
 
-      if(readStr.indexOf("DIS") > -1){
-        Serial.print("Arrrrr!!!");
-        No_IP = true;
-      };
-
-      if(No_IP){
-        get_ip();
-      }
-
       if( readStr.indexOf("HTTP") > -1) {
-        sendSomething();
-        readStr = "";
+        if(readStr.indexOf("status") > -1) {
+          sendStatus();
+        } else {
+          sendSomething();
+        }
       };
+      readStr = "";
 }
