@@ -1,7 +1,15 @@
 #include <SoftwareSerial.h>
 #include "config.h"
 
-SoftwareSerial esp8266(3, 2); //RX, TX
+#define RX_PIN 3
+#define TX_PIN 2
+#define DUTY_LED_PIN 8
+#define LAMP_R_PIN 13
+#define LAMP_G_PIN 11
+#define LAMP_B_PIN 12
+
+
+SoftwareSerial esp8266(RX_PIN, TX_PIN); //RX, TX
 String readStr; // IO-Carrier
 
 
@@ -37,7 +45,7 @@ void get_ip(){
   char ch=0;
   while(1)
   {
-    blinkDutyLed(8, 100);
+    blinkDutyLed(100);
     delay(3000);
     Serial.println("IP, where are you?");
     esp8266.println("AT+CIFSR");
@@ -129,15 +137,19 @@ void sendStatus(){
 * 3) Light handler
 */
 
-void blinkDutyLed(int channel, int period_ms){
-    digitalWrite(channel, HIGH);
+void blinkDutyLed(int period_ms){
+    digitalWrite(DUTY_LED_PIN, HIGH);
     delay(period_ms / 2);
-    digitalWrite(channel, LOW);
+    digitalWrite(DUTY_LED_PIN, LOW);
     delay(period_ms / 2);
 }
 
-// Manifest weather
-
+// Handle weatherlamp
+void RGB_color(int red_light_value, int green_light_value, int blue_light_value){
+  analogWrite(LAMP_R_PIN, red_light_value);
+  analogWrite(LAMP_G_PIN, green_light_value);
+  analogWrite(LAMP_B_PIN, blue_light_value);
+}
 
 
 /*
@@ -145,17 +157,20 @@ void blinkDutyLed(int channel, int period_ms){
 */
 
 void setup() {
-
   // Led declaration
   pinMode(8, OUTPUT);
-
+  pinMode(LAMP_R_PIN, OUTPUT);
+  pinMode(LAMP_G_PIN, OUTPUT);
+  pinMode(LAMP_B_PIN, OUTPUT);
 
   // Initialization
-  blinkDutyLed(8, 1000);
+  blinkDutyLed(1000);
   Serial.begin(115200);
   Serial.print("Hello");
   esp8266.begin(115200);
   delay(100);
+
+  RGB_color(255,0,0);
   wifi_init();
 }
 
