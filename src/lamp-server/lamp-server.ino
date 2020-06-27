@@ -89,10 +89,11 @@ void initESP8266(){
 void connectToAP(){
   Serial.println("Connecting Wifi....");
   sendCommand(AP,7000);
-  delay(5000);
+  delay(7000);
   //getIP();
   esp8266.println("AT+CIFSR");
   while(esp8266.available()>0){
+    delay(100);
     Serial.println(esp8266.readString());
   }
 }
@@ -271,12 +272,17 @@ void setup() {
 }
 
 void loop() {
-      while(!esp8266.available()) { };
 
+    while(Serial.available() > 0){
+      readStr = Serial.readString();
+      setLampColor(readStr);
+      readStr = "";
+    }
+
+    while(esp8266.available() > 0) {
       readStr = esp8266.readString();
       Serial.println(readStr);
-
-      if( readStr.indexOf("HTTP") > -1) {
+      if(readStr.indexOf("HTTP") > -1) {
         if(readStr.indexOf("status") > -1) {
           sendStatus();
         } else {
@@ -285,4 +291,5 @@ void loop() {
         }
       };
       readStr = "";
+    };
 }
