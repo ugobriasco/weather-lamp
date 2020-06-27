@@ -18,7 +18,7 @@ String readStr; // IO-Carrier
 * 1) ESP8266 handler
 */
 
-void connect_wifi(String cmd, int t){
+void sendCommand(String cmd, int t){
   int temp=0,i=0;
   while(1)
   {
@@ -40,8 +40,7 @@ void connect_wifi(String cmd, int t){
   Serial.println("Error");
 }
 
-void get_ip(){
-
+void getIP(){
   String  IP="";
   char ch=0;
   while(1)
@@ -77,61 +76,59 @@ void get_ip(){
   Serial.println(80);
 }
 
-void wifi_init(){
-
-  connect_wifi("AT",100);
-  connect_wifi("AT+CWMODE=3",100);
-  connect_wifi("AT+CWQAP",100);
-  connect_wifi("AT+RST",5000);
-  Serial.println("Connecting Wifi....");
-  connect_wifi(AP,7000);
-  delay(5000);
-  get_ip();
-  connect_wifi("AT+CIPMUX=1",100);
-  connect_wifi("AT+CIPSERVER=1,80",100);
+void initESP8266(){
+  sendCommand("AT",100);
+  sendCommand("AT+CWMODE=3",100);
+  sendCommand("AT+CWQAP",100);
+  sendCommand("AT+RST",5000);
+  connectToAP();
+  sendCommand("AT+CIPMUX=1",100);
+  sendCommand("AT+CIPSERVER=1,80",100);
 }
 
-void sendwebdata(String webPage){
-    int ii=0;
-     while(1)
-     {
-      unsigned int l=webPage.length();
-      Serial.print("AT+CIPSEND=0,");
-      esp8266.print("AT+CIPSEND=0,");
-      Serial.println(l+2);
-      esp8266.println(l+2);
-      delay(100);
-      Serial.println(webPage);
-      esp8266.println(webPage);
-      while(esp8266.available())
-      {
-        //Serial.print(Serial.read());
-        if(esp8266.find("OK"))
-        {
-          ii=11;
-          break;
-        }
-      }
-      if(ii==11)
-      break;
-      delay(100);
-     }
+void connectToAP(){
+  Serial.println("Connecting Wifi....");
+  sendCommand(AP,7000);
+  delay(5000);
+  //getIP();
+  esp8266.println("AT+CIFSR");
+  while(esp8266.available()>0){
+    Serial.println(esp8266.readString());
+  }
+}
+
+void sendToClient(int SessionNo, String s){
+    Serial.println("\nAT+CIPSEND=" + String(SessionNo) + "," + String(s.length()+2));
+    delay(100);
+    esp8266.println("AT+CIPSEND=" + String(SessionNo) + "," +  String(s.length()+2) );
+    while(!esp8266.available()) { };
+    readStr = esp8266.readString();
+    Serial.print(readStr);
+    delay(100);
+    Serial.println("\n" + s +"\n\r");
+    esp8266.println(s);
+    return;
+}
+
+
+void closeSession(int SessionNo){
+   esp8266.println("AT+CIPCLOSE=" + String(SessionNo));
+   while(!esp8266.available()) {  };
+   readStr = esp8266.readString();
+   Serial.print(readStr);
+   return;
 }
 
 /*
 * 2) HTTP responses handler
 */
 
-void sendSomething(){
-  sendwebdata("<h1>Welcome to The weather Lamp</h1>");
-  delay(1000);
-  esp8266.println("AT+CIPCLOSE=0");
-}
-
 void sendStatus(){
-  sendwebdata("{'key': 'foo'}");
-  delay(1000);
-  esp8266.println("AT+CIPCLOSE=0");
+  // Send the page
+  sendToClient(0,"{\"message\":\"All good\"}");
+  delay(500);
+  closeSession(0);
+  delay(500);
 }
 
 /*
@@ -270,7 +267,7 @@ void setup() {
   esp8266.begin(115200);
   delay(100);
 
-  wifi_init();
+  initESP8266();
 }
 
 void loop() {
@@ -284,6 +281,7 @@ void loop() {
           sendStatus();
         } else {
           setLampColor(readStr);
+          sendStatus();
         }
       };
       readStr = "";
