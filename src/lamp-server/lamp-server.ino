@@ -7,11 +7,12 @@
 #define LAMP_R_PIN 13
 #define LAMP_G_PIN 11
 #define LAMP_B_PIN 12
+//uncomment this line if using a Common Anode LED
+//#define COMMON_ANODE
 
 
 SoftwareSerial esp8266(RX_PIN, TX_PIN); //RX, TX
 String readStr; // IO-Carrier
-
 
 /*
 * 1) ESP8266 handler
@@ -145,10 +146,108 @@ void blinkDutyLed(int period_ms){
 }
 
 // Handle weatherlamp
-void RGB_color(int red_light_value, int green_light_value, int blue_light_value){
-  analogWrite(LAMP_R_PIN, red_light_value);
-  analogWrite(LAMP_G_PIN, green_light_value);
-  analogWrite(LAMP_B_PIN, blue_light_value);
+void setRGB(int r, int g, int b){
+  #ifdef COMMON_ANODE
+    r = 255 - r;
+    g = 255 - g;
+    b = 255 - b;
+  #endif
+  analogWrite(LAMP_R_PIN, r);
+  analogWrite(LAMP_G_PIN, g);
+  analogWrite(LAMP_B_PIN, b);
+}
+
+void setRed(){
+  setRGB(255, 0, 0);
+}
+
+void setSmoothRed(){
+  setRGB(255, 0, 0);
+}
+
+void setYellow(){
+  setRGB(200, 255, 0);
+}
+
+void setSmoothYellow(){
+  setRGB(200, 255, 0);
+}
+
+void setGreen(){
+  setRGB(0, 255, 0);
+}
+
+void setSmoothGreen(){
+  setRGB(0, 255, 0);
+}
+
+void setLightBlue(){
+  setRGB(0, 255, 255);
+}
+
+void setSmoothLightBlue(){
+  setRGB(0, 255, 255);
+}
+
+void setBlue(){
+  setRGB(0, 0, 255);
+}
+
+void setSmoothBlue(){
+  setRGB(0, 0, 255);
+}
+
+void setLampColor( String str){
+
+
+  // Shades of blue
+  if(str.indexOf("blue-1") > -1){
+    setBlue();
+  }
+
+  if(str.indexOf("blue-2") > -1){
+    setSmoothBlue();
+  }
+
+
+  // Shades of Light Blue
+  if(str.indexOf("lightBlue-1") > -1){
+    setLightBlue();
+  }
+
+  if(str.indexOf("lightBlue-2") > -1){
+    setSmoothLightBlue();
+  }
+
+
+  // Shades of Red
+  if(str.indexOf("red-1") > -1){
+    setRed();
+  }
+
+  if(str.indexOf("red-2") > -1){
+    setSmoothRed();
+  }
+
+  // Shades of Yellow
+  if(str.indexOf("yellow-1") > -1){
+    setYellow();
+  }
+
+  if(str.indexOf("yellow-2") > -1){
+    setSmoothYellow();
+  }
+
+  // Shades of Green
+  if(str.indexOf("green-1") > -1){
+    setGreen();
+  }
+
+  if(str.indexOf("green-2") > -1){
+    setSmoothGreen();
+  }
+
+
 }
 
 
@@ -165,12 +264,12 @@ void setup() {
 
   // Initialization
   blinkDutyLed(1000);
+  setYellow();
   Serial.begin(115200);
   Serial.print("Hello");
   esp8266.begin(115200);
   delay(100);
 
-  RGB_color(255,0,0);
   wifi_init();
 }
 
@@ -178,13 +277,13 @@ void loop() {
       while(!esp8266.available()) { };
 
       readStr = esp8266.readString();
-      Serial.print(readStr);
+      Serial.println(readStr);
 
       if( readStr.indexOf("HTTP") > -1) {
         if(readStr.indexOf("status") > -1) {
           sendStatus();
         } else {
-          sendSomething();
+          setLampColor(readStr);
         }
       };
       readStr = "";
