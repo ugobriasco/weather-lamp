@@ -13,6 +13,7 @@
 
 SoftwareSerial esp8266(RX_PIN, TX_PIN); //RX, TX
 String readStr; // IO-Carrier
+String lampState = "";
 
 /*
 * 1) ESP8266 handler
@@ -81,7 +82,7 @@ void initESP8266(){
   sendCommand("AT+CWMODE=3",100);
   sendCommand("AT+CWQAP",100);
   sendCommand("AT+RST",5000);
-  connectToAP();
+  //connectToAP();
   sendCommand("AT+CIPMUX=1",100);
   sendCommand("AT+CIPSERVER=1,80",100);
 }
@@ -93,7 +94,6 @@ void connectToAP(){
   //getIP();
   esp8266.println("AT+CIFSR");
   while(esp8266.available()>0){
-    delay(100);
     Serial.println(esp8266.readString());
   }
 }
@@ -161,6 +161,7 @@ void setRed(){
 
 void setSmoothRed(){
   setRGB(255, 0, 0);
+
 }
 
 void setYellow(){
@@ -249,6 +250,10 @@ void setLampColor( String str){
 }
 
 
+void getLampColor(){
+  //TODO define statemachine for the lamp;
+  return;
+}
 /*
 * Main
 */
@@ -273,23 +278,28 @@ void setup() {
 
 void loop() {
 
-    while(Serial.available() > 0){
-      readStr = Serial.readString();
-      setLampColor(readStr);
-      readStr = "";
-    }
+  // TODO
+  //getLampColor();
 
-    while(esp8266.available() > 0) {
-      readStr = esp8266.readString();
-      Serial.println(readStr);
-      if(readStr.indexOf("HTTP") > -1) {
-        if(readStr.indexOf("status") > -1) {
-          sendStatus();
-        } else {
-          setLampColor(readStr);
-          sendStatus();
-        }
-      };
-      readStr = "";
+  // Serial COM handler
+  while(Serial.available() > 0){
+    readStr = Serial.readString();
+    setLampColor(readStr);
+    readStr = "";
+  }
+
+  // ESP8266 handler
+  while(esp8266.available() > 0) {
+    readStr = esp8266.readString();
+    Serial.println(readStr);
+    if(readStr.indexOf("HTTP") > -1) {
+      if(readStr.indexOf("status") > -1) {
+        sendStatus();
+      } else {
+        setLampColor(readStr);
+        sendStatus();
+      }
     };
+    readStr = "";
+  };
 }
