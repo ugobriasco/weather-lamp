@@ -7,7 +7,8 @@
 ## Getting Started
 
 
-
+If directly connecting to the ESP:
+192.168.4.1/status
 
 
 ## Type of weather supported
@@ -17,7 +18,7 @@
 | Tag           | Light behaviour                             | Example |
 | ------------- | ------------------------------------------- | ------- |
 | clear         | Constant                                    | ☀️       |
-| partly-cloudy | intermittent synusoidal wave                | 🌤       |
+| partly-cloudy | intermittent sinusoidal wave                | 🌤       |
 | overcast      | constant sinusoidal wave                    | ☁️️ 🌫     |
 | patchy-rain   | intermittent white noise burst              | 🌦       |
 | rain          | white noise                                 | 🌧 - 🌨   |
@@ -25,7 +26,7 @@
 
 *Temperatures*
 
-| Tag       | Light behaviour | Eample    |
+| Tag       | Light behaviour | Example    |
 | --------- | --------------- | --------- |
 | very-hot  | Red             | > 30 °C   |
 | hot       | Yellow          | 20-29 °C  |

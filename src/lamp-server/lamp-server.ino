@@ -156,48 +156,64 @@ void setRGB(int r, int g, int b){
 }
 
 void setRed(){
+  lampState = "red-1";
   setRGB(255, 0, 0);
 }
 
 void setSmoothRed(){
+  lampState = "red-2";
   setRGB(255, 0, 0);
+  delay(500);
+  setRGB(200, 100, 0);
+  delay(500);
 
 }
 
 void setYellow(){
+  lampState = "yellow-1";
   setRGB(200, 255, 0);
 }
 
 void setSmoothYellow(){
+  lampState = "yellow-2";
   setRGB(200, 255, 0);
 }
 
 void setGreen(){
+  lampState = "green-1";
   setRGB(0, 255, 0);
 }
 
 void setSmoothGreen(){
+  lampState = "green-2";
   setRGB(0, 255, 0);
 }
 
 void setLightBlue(){
+  lampState = "lightBlue-1";
   setRGB(0, 255, 255);
 }
 
 void setSmoothLightBlue(){
+  lampState = "lightBlue-2";
   setRGB(0, 255, 255);
 }
 
 void setBlue(){
+  lampState = "blue-1";
   setRGB(0, 0, 255);
 }
 
 void setSmoothBlue(){
+  lampState = "blue-2";
   setRGB(0, 0, 255);
 }
 
-void setLampColor( String str){
+String getLampstate() {
+  return lampState;
+}
 
+void setLampColor( String str ){
 
   // Shades of blue
   if(str.indexOf("blue-1") > -1){
@@ -250,10 +266,6 @@ void setLampColor( String str){
 }
 
 
-void getLampColor(){
-  //TODO define statemachine for the lamp;
-  return;
-}
 /*
 * Main
 */
@@ -279,12 +291,13 @@ void setup() {
 void loop() {
 
   // TODO
-  //getLampColor();
+  setLampColor(lampState);
 
   // Serial COM handler
   while(Serial.available() > 0){
     readStr = Serial.readString();
     setLampColor(readStr);
+    Serial.println(lampState);
     readStr = "";
   }
 
