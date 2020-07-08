@@ -160,13 +160,9 @@ void setRed(){
   setRGB(255, 0, 0);
 }
 
-void setSmoothRed(){
+void setRed2(){
   lampState = "red-2";
-  setRGB(255, 0, 0);
-  delay(500);
-  setRGB(200, 100, 0);
-  delay(500);
-
+  setRGB(255, 150, 0);
 }
 
 void setYellow(){
@@ -174,9 +170,9 @@ void setYellow(){
   setRGB(200, 255, 0);
 }
 
-void setSmoothYellow(){
+void setYellow2(){
   lampState = "yellow-2";
-  setRGB(200, 255, 0);
+  setRGB(200, 255, 150);
 }
 
 void setGreen(){
@@ -184,9 +180,9 @@ void setGreen(){
   setRGB(0, 255, 0);
 }
 
-void setSmoothGreen(){
+void setGreen2(){
   lampState = "green-2";
-  setRGB(0, 255, 0);
+  setRGB(150, 255, 150);
 }
 
 void setLightBlue(){
@@ -194,9 +190,9 @@ void setLightBlue(){
   setRGB(0, 255, 255);
 }
 
-void setSmoothLightBlue(){
+void setLightBlue2(){
   lampState = "lightBlue-2";
-  setRGB(0, 255, 255);
+  setRGB(150, 200, 255);
 }
 
 void setBlue(){
@@ -204,14 +200,51 @@ void setBlue(){
   setRGB(0, 0, 255);
 }
 
-void setSmoothBlue(){
+void setBlue2(){
   lampState = "blue-2";
-  setRGB(0, 0, 255);
+  setRGB(50, 0, 255);
 }
 
-String getLampstate() {
-  return lampState;
+void setPartCloudyEffect(int r, int g, int b){
+  // r 255 0 0
+  // g 0 255 0
+  // b 0 0 255
+  // a 0 255 255
+  // y 200 255 0
 }
+
+void setOvercastEffect(int r, int g, int b){
+  // r 255 0 0
+  // g 0 255 0
+  // b 0 0 255
+  // a 0 255 255
+  // y 200 255 0
+}
+
+void setPatchyRainEffect(int r, int g, int b){
+  // r 255 0 0
+  // g 0 255 0
+  // b 0 0 255
+  // a 0 255 255
+  // y 200 255 0
+}
+
+void setRainEffect(int r, int g, int b){
+  // r 255 0 0
+  // g 0 255 0
+  // b 0 0 255
+  // a 0 255 255
+  // y 200 255 0
+}
+
+void setStormEffect(int r, int g, int b){
+  // r 255 0 0
+  // g 0 255 0
+  // b 0 0 255
+   // a 0 255 255
+  // y 200 255 0
+}
+
 
 void setLampColor( String str ){
 
@@ -285,7 +318,7 @@ void setup() {
   esp8266.begin(115200);
   delay(100);
 
-  initESP8266();
+  //initESP8266();
 }
 
 void loop() {
