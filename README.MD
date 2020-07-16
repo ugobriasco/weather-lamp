@@ -15,21 +15,21 @@ If directly connecting to the ESP:
 
 *Weather conditions*
 
-| Tag           | Light behaviour                             | Example |
-| ------------- | ------------------------------------------- | ------- |
-| clear         | Constant                                    | ☀️       |
-| partly-cloudy | intermittent sinusoidal wave                | 🌤       |
-| overcast      | constant sinusoidal wave                    | ☁️️ 🌫     |
-| patchy-rain   | intermittent white noise burst              | 🌦       |
+| Tag           | Light behaviour                             | Example   |
+| ------------- | ------------------------------------------- | ----------|
+| clear         | Constant                                    | ☀️         |
+| partly-cloudy | intermittent sinusoidal wave                | 🌤        |
+| overcast      | constant sinusoidal wave                    | ☁️️ 🌫      |
+| patchy-rain   | intermittent white noise burst              | 🌦        |
 | rain          | white noise                                 | 🌧 - 🌨   |
-| storm         | white noise convolute with hard noise burst | ⛈       |
+| storm         | white noise convolute with hard noise burst | ⛈        |
 
 *Temperatures*
 
-| Tag       | Light behaviour | Example    |
+| Tag       | Light behaviour | Example   |
 | --------- | --------------- | --------- |
-| very-hot  | Red             | > 30 °C   |
-| hot       | Yellow          | 20-29 °C  |
-| mild      | Green           | 10-20 °C  |
-| cold      | Light Blue      | 0 - 10 °C |
-| very cold | Deep Blue       | < 0 °C    |
+| very-hot  | Red             | > 26  °C  |
+| hot       | Yellow          | 21-26 °C  |
+| mild      | Green           | 14-20 °C  |
+| cold      | Light Blue      | 5-13  °C  |
+| very cold | Deep Blue       | < 5   °C  |

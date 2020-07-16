@@ -15,6 +15,11 @@ SoftwareSerial esp8266(RX_PIN, TX_PIN); //RX, TX
 String readStr; // IO-Carrier
 String lampState = "";
 
+// Lamp Global variables
+int r = 0;
+int g = 0;
+int b = 0;
+String effect = "";
 /*
 * 1) ESP8266 handler
 */
@@ -111,7 +116,6 @@ void sendToClient(int SessionNo, String s){
     return;
 }
 
-
 void closeSession(int SessionNo){
    esp8266.println("AT+CIPCLOSE=" + String(SessionNo));
    while(!esp8266.available()) {  };
@@ -144,7 +148,7 @@ void blinkDutyLed(int period_ms){
 }
 
 // Handle weatherlamp
-void setRGB(int r, int g, int b){
+void setRGBlamp(int r, int g, int b){
   #ifdef COMMON_ANODE
     r = 255 - r;
     g = 255 - g;
@@ -155,149 +159,66 @@ void setRGB(int r, int g, int b){
   analogWrite(LAMP_B_PIN, b);
 }
 
-void setRed(){
-  lampState = "red-1";
-  setRGB(255, 0, 0);
-}
-
-void setRed2(){
-  lampState = "red-2";
-  setRGB(255, 150, 0);
-}
-
-void setYellow(){
-  lampState = "yellow-1";
-  setRGB(200, 255, 0);
-}
-
-void setYellow2(){
-  lampState = "yellow-2";
-  setRGB(200, 255, 150);
-}
-
-void setGreen(){
-  lampState = "green-1";
-  setRGB(0, 255, 0);
-}
-
-void setGreen2(){
-  lampState = "green-2";
-  setRGB(150, 255, 150);
-}
-
-void setLightBlue(){
-  lampState = "lightBlue-1";
-  setRGB(0, 255, 255);
-}
-
-void setLightBlue2(){
-  lampState = "lightBlue-2";
-  setRGB(150, 200, 255);
-}
-
-void setBlue(){
-  lampState = "blue-1";
-  setRGB(0, 0, 255);
-}
-
-void setBlue2(){
-  lampState = "blue-2";
-  setRGB(50, 0, 255);
-}
-
-void setPartCloudyEffect(int r, int g, int b){
-  // r 255 0 0
-  // g 0 255 0
-  // b 0 0 255
-  // a 0 255 255
-  // y 200 255 0
-}
-
-void setOvercastEffect(int r, int g, int b){
-  // r 255 0 0
-  // g 0 255 0
-  // b 0 0 255
-  // a 0 255 255
-  // y 200 255 0
-}
-
-void setPatchyRainEffect(int r, int g, int b){
-  // r 255 0 0
-  // g 0 255 0
-  // b 0 0 255
-  // a 0 255 255
-  // y 200 255 0
-}
-
-void setRainEffect(int r, int g, int b){
-  // r 255 0 0
-  // g 0 255 0
-  // b 0 0 255
-  // a 0 255 255
-  // y 200 255 0
-}
-
-void setStormEffect(int r, int g, int b){
-  // r 255 0 0
-  // g 0 255 0
-  // b 0 0 255
-   // a 0 255 255
-  // y 200 255 0
+void setRGB(int _r, int _g, int _b){
+  r = _r;
+  g = _g;
+  b = _b;
 }
 
 
-void setLampColor( String str ){
+void setLampState(String str) {
 
-  // Shades of blue
-  if(str.indexOf("blue-1") > -1){
-    setBlue();
+  // Temperature
+  if(str.indexOf("very-cold") > -1){
+    setRGB(0, 0, 255);  //deep blue
   }
 
-  if(str.indexOf("blue-2") > -1){
-    setSmoothBlue();
+  if(str.indexOf("cold") > -1){
+    setRGB(0, 255, 255); //light blue
+  }
+
+  if(str.indexOf("mild") > -1){
+    setRGB(0, 255, 0); // green
+  }
+
+  if(str.indexOf("hot") > -1){
+    setRGB(200, 255, 0); // yellow
+  }
+
+  if(str.indexOf("very-hot") > -1){
+    setRGB(255, 0, 0); // red
   }
 
 
-  // Shades of Light Blue
-  if(str.indexOf("lightBlue-1") > -1){
-    setLightBlue();
+
+
+  // Weather
+  if(str.indexOf("rain") > -1){
+      effect = "rain";
   }
 
-  if(str.indexOf("lightBlue-2") > -1){
-    setSmoothLightBlue();
+  if(str.indexOf("clear") > -1){
+      effect = "clear";
   }
-
-
-  // Shades of Red
-  if(str.indexOf("red-1") > -1){
-    setRed();
-  }
-
-  if(str.indexOf("red-2") > -1){
-    setSmoothRed();
-  }
-
-  // Shades of Yellow
-  if(str.indexOf("yellow-1") > -1){
-    setYellow();
-  }
-
-  if(str.indexOf("yellow-2") > -1){
-    setSmoothYellow();
-  }
-
-  // Shades of Green
-  if(str.indexOf("green-1") > -1){
-    setGreen();
-  }
-
-  if(str.indexOf("green-2") > -1){
-    setSmoothGreen();
-  }
-
 
 }
 
+void playEffect(){
+  if(effect.indexOf("rain") > -1){
+    delay(200);
+    setRGBlamp(r,g,b);
+    delay(200);
+    if(g > 100){
+      setRGBlamp(r,0,b);
+    } else {
+      setRGBlamp(r,255,b);
+    }
+  }
+
+  else {
+    setRGBlamp(r,g,b);
+  }
+}
 
 /*
 * Main
@@ -312,7 +233,6 @@ void setup() {
 
   // Initialization
   blinkDutyLed(1000);
-  setYellow();
   Serial.begin(115200);
   Serial.print("Hello");
   esp8266.begin(115200);
@@ -323,14 +243,13 @@ void setup() {
 
 void loop() {
 
-  // TODO
-  setLampColor(lampState);
+  playEffect();
 
   // Serial COM handler
   while(Serial.available() > 0){
     readStr = Serial.readString();
-    setLampColor(readStr);
-    Serial.println(lampState);
+    setLampState(readStr);
+    Serial.println(effect);
     readStr = "";
   }
 
@@ -342,7 +261,7 @@ void loop() {
       if(readStr.indexOf("status") > -1) {
         sendStatus();
       } else {
-        setLampColor(readStr);
+        setLampState(readStr);
         sendStatus();
       }
     };
