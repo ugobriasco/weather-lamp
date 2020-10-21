@@ -33,3 +33,7 @@ If directly connecting to the ESP:
 | mild      | Green           | 10-20 °C  |
 | cold      | Light Blue      | 0 - 10 °C |
 | very cold | Deep Blue       | < 0 °C    |
+
+
+## API Integration
+https://openweathermap.org/api/one-call-api
