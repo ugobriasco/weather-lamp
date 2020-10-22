@@ -6,17 +6,83 @@
 
 #include "config.h"
 
-#define SSID "Pretty Fly for a Wi-Fi"
-#define PASSWORD "Bonaventur4"
-
+//EXP8266
 ESP8266WebServer server(80);   //instantiate server at port 80 (http port)
-int LEDPin = 5;
 String page = "";
 
-StaticJsonDocument<1024> doc;
+//Lamp handling
+int LEDPin = 5;
 
 
+// Weather API relation
+const size_t capacity = 49*JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(48) + 11*JSON_OBJECT_SIZE(1) + 49*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(6) + 37*JSON_OBJECT_SIZE(12) + 11*JSON_OBJECT_SIZE(13) + JSON_OBJECT_SIZE(14) + 1600;
+DynamicJsonDocument doc(capacity);
+int HOURLY_FORECAST = 4;
+//const char *host = "http://arduinojson.org/example.json";
 
+// Cronjob
+int cron_1 = 60;  //60 Seconds intervall for timer 1;
+long t1;
+
+// Cronjobs
+void cron1() {
+  handleHttpRequest();
+}
+
+void cronjob() {
+  long tmp = millis();
+  if ((t1 + (cron_1 * 1000)) <= tmp) {
+    cron1();
+    t1 = millis();
+  }
+}
+
+// Get weather from Openweather API
+void handleHttpRequest(void){
+  Serial.println("Cronjob 1 active");
+  HTTPClient http;
+  Serial.println("Getting weather ..");
+  http.begin(HOSTNAME);
+
+  int httpCode = http.GET();            //Send the request
+  String payload = http.getString();    //Get the response payload from server
+
+  Serial.print("Response Code:"); //200 is OK
+  Serial.println(httpCode);   //Print HTTP return code
+
+  // Serial.print("Returned data from Server:");
+  // Serial.println(payload);    //Print request response payload
+
+  if(httpCode == 200)
+  {
+    //JsonObject root = jsonBuffer.parseObject(payload);
+
+    deserializeJson(doc, payload);
+    DeserializationError error = deserializeJson(doc, payload);
+    if (error){
+      Serial.println("Error by deserializing response body");
+    } else {
+
+      JsonArray hourly = doc["hourly"];
+      float temp = hourly[HOURLY_FORECAST]["temp"];
+      int weatherID = hourly[HOURLY_FORECAST]["weather"][0]["id"]; // 800
+      const char* weatherLabel = hourly[HOURLY_FORECAST]["weather"][0]["main"]; // "Clear
+      Serial.println("Weather forecast in 4 hours:");
+      Serial.print("Temperature: ");
+      Serial.println(temp);
+      Serial.print("Weather: ");
+      Serial.print(weatherID);
+      Serial.print("-");
+      Serial.println(weatherLabel);
+
+    };
+  }
+  else
+  {
+    Serial.println("Error in response");
+  }
+  http.end();
+}
 
 void setup(void){
 
@@ -62,68 +128,5 @@ void setup(void){
 
 void loop(void){
   server.handleClient();
-
-  HTTPClient http;
-  Serial.println("Getting weather ..");
-  http.begin(HOSTNAME);
-
-  int httpCode = http.GET();            //Send the request
-  String payload = http.getString();    //Get the response payload from server
-
-  Serial.print("Response Code:"); //200 is OK
-  Serial.println(httpCode);   //Print HTTP return code
-
-  Serial.print("Returned data from Server:");
-  Serial.println(payload);    //Print request response payload
-
-  if(httpCode == 200)
-  {
-    //JsonObject root = jsonBuffer.parseObject(payload);
-
-    deserializeJson(doc, payload);
-    DeserializationError error = deserializeJson(doc, payload);
-    if (error){
-      Serial.println("Error by deserializing response body");
-      return;
-    }
-
-    Serial.println(doc);
-
-    const char* current = doc["current"];
-    Serial.println(current);
-
-
-
-
-
-
-   //  // Allocate JsonBuffer
-   //  // Use arduinojson.org/assistant to compute the capacity.
-   //  const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
-   //  DynamicJsonBuffer jsonBuffer(capacity);
-   //
-   // // Parse JSON object
-   //  JsonObject& root = jsonBuffer.parseObject(payload);
-   //  if (!root.success()) {
-   //    Serial.println(F("Parsing failed!"));
-   //    return;
-   //  }
-   //
-   //  // Decode JSON/Extract values
-   //  Serial.println(F("Response:"));
-   //  Serial.println(root["current"].as<char*>());
-  }
-  else
-  {
-    Serial.println("Error in response");
-  }
-
-
-  http.end();
-
-  delay(60000);
-
-
-
-
+  cronjob();
 }

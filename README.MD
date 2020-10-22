@@ -12,6 +12,7 @@ If directly connecting to the ESP:
 
 
 ## Type of weather supported
+https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2
 
 *Weather conditions*
 
