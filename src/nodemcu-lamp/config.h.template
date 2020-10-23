@@ -1,4 +1,4 @@
 #define SSID "YOUR_WIFI"
 #define PASSWORD "YOUR_PASSWORD"
-#define HOSTNAME "http://api.openweathermap.org/data/2.5/onecall?lat=52.5125893&lon=13.4554785&appid=16ac6330db55cc27cb8f46312897184e&exclude=daily,minutely,alerts&units=metric"
+#define HOSTNAME "http://api.openweathermap.org/data/2.5/onecall?lat=52.5125893&lon=13.4554785&exclude=daily,minutely,alerts&units=metric&appid={YOUR_API_KEY}"
 #define FORECAST_IN_HOURS 2

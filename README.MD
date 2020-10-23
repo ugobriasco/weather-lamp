@@ -1,14 +1,25 @@
 # The Weather Lamp
-
-
-
+An IoT project using NodeMCU. The lamp (5050 SMD RGB Led Strip) changes light pattern depending to the weather forecast.
 
 
 ## Getting Started
 
+- Download the app:
 
-If directly connecting to the ESP:
-192.168.4.1/status
+```bash
+  git clone git@github.com:ugobriasco/weather-lamp.git && cd ./weather-lamp
+  cp ./src/nodemcu-lamp/config.h.template ./src/nodemcu-lamp/config.h
+```
+
+- Edit the config file:
+
+```bash
+  vi ./src/nodemcu-lamp/config.h
+```
+
+- Compile and flash the NodeMCU.
+- Check the serial port under 115200 baud and get the IP assigned by wour WAN.
+- Open your browser and GET that IP.
 
 
 ## Type of weather supported
