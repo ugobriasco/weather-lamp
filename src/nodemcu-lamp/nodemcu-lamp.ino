@@ -27,6 +27,7 @@ int cron_2 = 600;  //600 Seconds (10 min) intervall for timer 1;
     long t2;
 void cron1() {
   getWeatherData();
+  setWeatherLamp();
 }
 void cron2() {
   printUsedWiFi();
@@ -94,6 +95,13 @@ void getWeatherData(void){
     Serial.println("Error in response");
   }
   http.end();
+}
+
+void setWeatherLamp(void){
+  // Mock weather
+  if(weatherID < 700 && weatherID != 0){
+    digitalWrite(LEDPin, HIGH);
+  }
 }
 
 // Run webserver to handle the lamp manually.
