@@ -88,6 +88,18 @@ void getWeatherData(void){
       Serial.print(weatherID);
       Serial.print("-");
       Serial.println(weatherLabel);
+
+      //Update page
+      page = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'/></head><body><h1>THE WEATHERLAMP!</h1><p><a href=\"LEDOn\"><button>ON</button></a>&nbsp;<a href=\"LEDOff\"><button>OFF</button></a></p><div><p>";
+      page.concat("Weather forecast in ");
+      page.concat(FORECAST_IN_HOURS);
+      page.concat("hours:</p><p>Temperature (Feels-like):");
+      page.concat( temp);
+      page.concat(" C</p><p>Weather:");
+      page.concat(weatherID);
+      page.concat("-");
+      page.concat(weatherLabel);
+      page.concat("</p></div></body><html>");
     };
   }
   else
@@ -101,13 +113,15 @@ void setWeatherLamp(void){
   // Mock weather
   if(weatherID < 700 && weatherID != 0){
     digitalWrite(LEDPin, HIGH);
+  } else {
+    digitalWrite(LEDPin, LOW);
   }
 }
 
 // Run webserver to handle the lamp manually.
 void startWebServer(void){
 
-  page = "<h1>THE WEATHERLAMP!</h1><p><a href=\"LEDOn\"><button>ON</button></a>&nbsp;<a href=\"LEDOff\"><button>OFF</button></a></p>";
+  page = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'/></head><body><h1>THE WEATHERLAMP!</h1><p><a href=\"LEDOn\"><button>ON</button></a>&nbsp;<a href=\"LEDOff\"><button>OFF</button></a></p><body><html>";
   server.on("/", [](){
     server.send(200, "text/html", page);
   });
