@@ -75,7 +75,7 @@ void getWeatherData(void){
     } else {
 
       JsonArray hourly = doc["hourly"];
-      temp = hourly[FORECAST_IN_HOURS]["feels_like"];
+      temp = hourly[FORECAST_IN_HOURS]["feels_like"]; //14.4
       weatherID = hourly[FORECAST_IN_HOURS]["weather"][0]["id"]; // 800
       const char* weatherLabel = hourly[FORECAST_IN_HOURS]["weather"][0]["description"]; // "Clear
       Serial.print("Weather forecast in ");
