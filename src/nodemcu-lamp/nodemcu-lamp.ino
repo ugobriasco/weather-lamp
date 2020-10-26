@@ -11,6 +11,10 @@ String page = "";
 
 //Lamp handling
 int LEDPin = 5;
+int rPin = 12;
+int bPin = 13;
+int gPin = 14;
+
 
 
 // Weather API relation
@@ -113,9 +117,11 @@ void setWeatherLamp(void){
   // Mock weather
   if(weatherID < 700 && weatherID != 0){
     digitalWrite(LEDPin, HIGH);
+    loopColors(10);
   } else {
     digitalWrite(LEDPin, LOW);
   }
+  return;
 }
 
 // Run webserver to handle the lamp manually.
@@ -139,11 +145,60 @@ void startWebServer(void){
   Serial.println("Web server started!");
 }
 
+
+void loopColors(int fadeSpeed){
+  int r, g, b;
+
+  // fade from blue to violet
+  for (r = 0; r < 256; r++) {
+    analogWrite(rPin, r);
+    delay(fadeSpeed);
+  }
+  // fade from violet to red
+  for (b = 255; b > 0; b--) {
+    analogWrite(bPin, b);
+    delay(fadeSpeed);
+  }
+  // fade from red to yellow
+  for (g = 0; g < 256; g++) {
+    analogWrite(gPin, g);
+    delay(fadeSpeed);
+  }
+  // fade from yellow to green
+  for (r = 255; r > 0; r--) {
+    analogWrite(rPin, r);
+    delay(fadeSpeed);
+  }
+  // fade from green to teal
+  for (b = 0; b < 256; b++) {
+    analogWrite(bPin, b);
+    delay(fadeSpeed);
+  }
+  // fade from teal to blue
+  for (g = 255; g > 0; g--) {
+    analogWrite(gPin, g);
+    delay(fadeSpeed);
+  }
+  // fade from blue to dark
+  for (b = 255; b > 0; b--) {
+    analogWrite(bPin, b);
+    delay(fadeSpeed);
+  }
+
+}
+
 //main
 void setup(void){
 
   pinMode(LEDPin, OUTPUT);
   digitalWrite(LEDPin, LOW);
+
+  //RGB
+  pinMode(rPin, OUTPUT);
+  pinMode(gPin, OUTPUT);
+  pinMode(bPin, OUTPUT);
+
+  loopColors(5);
 
   delay(1000);
   Serial.begin(115200);
