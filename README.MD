@@ -46,7 +46,7 @@ source: https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2
 
 | Tag       | Light behaviour | Example    |
 | --------- | --------------- | --------- |
-| very-hot  | Red             | > 30 °C   |
+| very-hot  | Red             | >= 30 °C   |
 | hot       | Yellow          | 24-29 °C |
 | mild      | Green           | 13-23 °C |
 | cold      | Light Blue      | 5-12 °C |

@@ -14,8 +14,7 @@ int LEDPin = 5;
 int rPin = 12;
 int bPin = 13;
 int gPin = 14;
-
-
+int rgbState [3] = {0,0,0};
 
 // Weather API relation
 const size_t capacity = 49*JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(48) + 11*JSON_OBJECT_SIZE(1) + 49*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(6) + 37*JSON_OBJECT_SIZE(12) + 11*JSON_OBJECT_SIZE(13) + JSON_OBJECT_SIZE(14) + 1600;
@@ -27,8 +26,8 @@ int weatherID = 0;
 // Cronjobs
 int cron_1 = 300;  //300 Seconds (5 min) intervall for timer 1;
 int cron_2 = 600;  //600 Seconds (10 min) intervall for timer 1;
-    long t1;
-    long t2;
+long t1;
+long t2;
 void cron1() {
   getWeatherData();
   setWeatherLamp();
@@ -113,8 +112,45 @@ void getWeatherData(void){
   http.end();
 }
 
+// Set state of the rgb lamp
+void setRGBstate(int r, int g, int b){
+  rgbState[0] = r;
+  rgbState[1] = g;
+  rgbState[2] = b;
+  return;
+}
+
+// Apply state of the rgb lamp
+void applyRGBstate(){
+  analogWrite(rPin, rgbState[0]);
+  analogWrite(gPin, rgbState[1]);
+  analogWrite(bPin, rgbState[2]);
+  return;
+}
+
+// Depending to the weather information, set lamp state accordingly
 void setWeatherLamp(void){
-  // Mock weather
+
+  // Handling temperature
+  if(temp >= 30 ){
+    setRGBstate(255, 0, 0); // Red
+    Serial.println("Red light");
+  } else if( temp >= 24 && temp < 30){
+    setRGBstate(255, 255, 0); // Yellow
+    Serial.println("Yellow light");
+  } else if (temp >=13 && temp < 24) {
+    setRGBstate(128, 255, 0); // Green
+    Serial.println("Green light");
+  } else if (temp >= 5 && temp < 13){
+    setRGBstate(0, 255, 255); // Light blue
+    Serial.println("Cyan light");
+  } else  {
+    setRGBstate(51, 51, 255); // Deep blue
+    Serial.println("Blue light");
+  }
+
+
+  // Handling weather
   if(weatherID < 700 && weatherID != 0){
     digitalWrite(LEDPin, HIGH);
     loopColors(10);
@@ -123,28 +159,6 @@ void setWeatherLamp(void){
   }
   return;
 }
-
-// Run webserver to handle the lamp manually.
-void startWebServer(void){
-
-  page = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'/></head><body><h1>THE WEATHERLAMP!</h1><p><a href=\"LEDOn\"><button>ON</button></a>&nbsp;<a href=\"LEDOff\"><button>OFF</button></a></p><body><html>";
-  server.on("/", [](){
-    server.send(200, "text/html", page);
-  });
-  server.on("/LEDOn", [](){
-    server.send(200, "text/html", page);
-    digitalWrite(LEDPin, HIGH);
-    delay(1000);
-  });
-  server.on("/LEDOff", [](){
-    server.send(200, "text/html", page);
-    digitalWrite(LEDPin, LOW);
-    delay(1000);
-  });
-  server.begin();
-  Serial.println("Web server started!");
-}
-
 
 void loopColors(int fadeSpeed){
   int r, g, b;
@@ -187,6 +201,27 @@ void loopColors(int fadeSpeed){
 
 }
 
+// Run webserver to handle the lamp manually.
+void startWebServer(void){
+
+  page = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'/></head><body><h1>THE WEATHERLAMP!</h1><p><a href=\"LEDOn\"><button>ON</button></a>&nbsp;<a href=\"LEDOff\"><button>OFF</button></a></p><body><html>";
+  server.on("/", [](){
+    server.send(200, "text/html", page);
+  });
+  server.on("/LEDOn", [](){
+    server.send(200, "text/html", page);
+    digitalWrite(LEDPin, HIGH);
+    delay(1000);
+  });
+  server.on("/LEDOff", [](){
+    server.send(200, "text/html", page);
+    digitalWrite(LEDPin, LOW);
+    delay(1000);
+  });
+  server.begin();
+  Serial.println("Web server started!");
+}
+
 //main
 void setup(void){
 
@@ -213,9 +248,11 @@ void setup(void){
   printUsedWiFi();
   startWebServer();
   getWeatherData();
+  setWeatherLamp();
 }
 
 void loop(void){
   server.handleClient();
   cronjobs();
+  applyRGBstate();
 }
