@@ -15,6 +15,9 @@ int rPin = 12;
 int bPin = 13;
 int gPin = 14;
 int rgbState [3] = {0,0,0};
+int rgbStateBackUp [3] = {0,0,0};
+int weatherState = 0;
+long tick = 0;
 
 // Weather API relation
 const size_t capacity = 49*JSON_ARRAY_SIZE(1) + JSON_ARRAY_SIZE(48) + 11*JSON_OBJECT_SIZE(1) + 49*JSON_OBJECT_SIZE(4) + JSON_OBJECT_SIZE(6) + 37*JSON_OBJECT_SIZE(12) + 11*JSON_OBJECT_SIZE(13) + JSON_OBJECT_SIZE(14) + 1600;
@@ -30,7 +33,10 @@ long t1;
 long t2;
 void cron1() {
   getWeatherData();
-  setWeatherLamp();
+  applyWeatherState();
+  Serial.print("Weather Effect Tick:");
+  Serial.println(tick);
+  tick =  0;
 }
 void cron2() {
   printUsedWiFi();
@@ -117,6 +123,9 @@ void setRGBstate(int r, int g, int b){
   rgbState[0] = r;
   rgbState[1] = g;
   rgbState[2] = b;
+  rgbStateBackUp[0] = r;
+  rgbStateBackUp[1] = g;
+  rgbStateBackUp[2] = b;
   return;
 }
 
@@ -127,6 +136,47 @@ void applyRGBstate(){
   analogWrite(bPin, rgbState[2]);
   return;
 }
+
+void applyWeatherState(){
+  // Get main channel, as we do not want to change rgb colors too much
+  int mainChannel;
+  mainChannel = getMainChannel();
+
+  // Perturbate main channel
+  /*
+    Define a period of 1000 ticks as working range. This implies:
+    Max tick/mainChannel: 1000 / 255 = 3.92156863
+    Min tick/mainChannel: 1000/ 100 = 10
+    then apply perturbations on that channel in relateion to this ratio
+  */
+  if(tick > 1000){
+    tick = 0;
+    return;
+  } else {
+    // Synusoidal perturbation
+    if(tick/rgbState[mainChannel] < 10){
+      rgbState[mainChannel] = rgbState[mainChannel]--;
+    } else if (rgbState[mainChannel] <= rgbStateBackUp[mainChannel]){
+      rgbState[mainChannel] = rgbState[mainChannel]++;
+    }
+    tick++;
+  }
+  return;
+};
+
+int getMainChannel(){
+  int i;
+  int largest = rgbStateBackUp[0];
+  int position = 0;
+  for(i=0; i<2; i++) {
+   if(largest<rgbStateBackUp[i]) {
+      position = i;
+   }
+  }
+   return position;
+};
+
+
 
 // Depending to the weather information, set lamp state accordingly
 void setWeatherLamp(void){
@@ -255,4 +305,5 @@ void loop(void){
   server.handleClient();
   cronjobs();
   applyRGBstate();
+  applyWeatherState();
 }
