@@ -142,28 +142,33 @@ void applyWeatherState(){
   int mainChannel;
   mainChannel = getMainChannel();
 
-  // Perturbate main channel
-  /*
-    Define a period of 1000 ticks as working range. This implies:
-    Max tick/mainChannel: 1000 / 255 = 3.92156863
-    Min tick/mainChannel: 1000/ 100 = 10
-    then apply perturbations on that channel in relateion to this ratio
-  */
-  if(tick > 1000){
-    tick = 0;
-    return;
-  } else {
-    // Synusoidal perturbation
-    if(tick/rgbState[mainChannel] < 10){
-      rgbState[mainChannel] = rgbState[mainChannel]--;
-    } else if (rgbState[mainChannel] <= rgbStateBackUp[mainChannel]){
-      rgbState[mainChannel] = rgbState[mainChannel]++;
-    }
-    tick++;
+  //Perturbate main channel, depending to the weather conditions
+  if(weatherID < 700 && weatherID != 0){
+    applySinEffect(mainChannel);
   }
+  applyRGBstate();
   return;
 };
 
+// Constant sinusoidal wave, low pitch
+void applySinEffect(int ch){
+  if(tick > 300){
+    tick = 0;
+  } else {
+    // Synusoidal perturbation
+    if(rgbState[ch] > 50 && tick < 150){
+      rgbState[ch] = rgbState[ch] -2;
+    } else if (rgbState[ch] < rgbStateBackUp[ch]){
+      rgbState[ch] = rgbState[ch] +2;
+    }
+    delay(50);
+    tick++;
+  }
+  applyRGBstate();
+  return;
+}
+
+// Get the dominant RGB channel if equal then R -> G -> B
 int getMainChannel(){
   int i;
   int largest = rgbStateBackUp[0];
@@ -176,8 +181,6 @@ int getMainChannel(){
    return position;
 };
 
-
-
 // Depending to the weather information, set lamp state accordingly
 void setWeatherLamp(void){
 
@@ -186,24 +189,26 @@ void setWeatherLamp(void){
     setRGBstate(255, 0, 0); // Red
     Serial.println("Red light");
   } else if( temp >= 24 && temp < 30){
-    setRGBstate(255, 255, 0); // Yellow
+    setRGBstate(255, 254, 0); // Yellow
     Serial.println("Yellow light");
   } else if (temp >=13 && temp < 24) {
     setRGBstate(128, 255, 0); // Green
     Serial.println("Green light");
   } else if (temp >= 5 && temp < 13){
-    setRGBstate(0, 255, 255); // Light blue
+    setRGBstate(0, 254, 255); // Light blue
     Serial.println("Cyan light");
   } else  {
     setRGBstate(51, 51, 255); // Deep blue
     Serial.println("Blue light");
   }
 
-
   // Handling weather
+  applyWeatherState();
+
+
+
   if(weatherID < 700 && weatherID != 0){
     digitalWrite(LEDPin, HIGH);
-    loopColors(10);
   } else {
     digitalWrite(LEDPin, LOW);
   }
@@ -299,6 +304,7 @@ void setup(void){
   startWebServer();
   getWeatherData();
   setWeatherLamp();
+
 }
 
 void loop(void){
@@ -306,4 +312,12 @@ void loop(void){
   cronjobs();
   applyRGBstate();
   applyWeatherState();
+
+  // Debugging purpose
+  // Serial.print("r: ");
+  // Serial.print(rgbState[0]);
+  // Serial.print(" g: ");
+  // Serial.print(rgbState[1]);
+  // Serial.print(" b: ");
+  // Serial.println(rgbState[2]);
 }
