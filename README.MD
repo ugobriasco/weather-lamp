@@ -29,16 +29,16 @@ An IoT project using NodeMCU. The lamp (5050 SMD RGB Led Strip) changes light pa
 ### Type of weather supported
 *Weather conditions*
 
-| Tag           | OpenWeather ID range      | Light behaviour                             | Example |
-| ------------- | ------------------------- | ------------------------------------------- | ------- |
-| Clear         | 800                       | Constant                                    | ☀️       |
-| Partly-cloudy | 801, 802                  | Intermittent sinusoidal wave, low pitch     | 🌤       |
-| Overcast      | 701->762, 803, 804        | Constant sinusoidal wave, low pitch         | ☁️️ 🌫     |
-| Patchy-rain   | 500 -> 504                | Intermittent white noise burst              | 🌦       |
-| light-snow    | 600, 611, 612, 615        | Intermittent white noise burst              | 🌦       |
-| Rain          | 520 -> 531                | White noise                                 | 🌧       |
-| Snow          | 511, 601, 602, 616 -> 622 | Intermittent white noise burst              | 🌨       |
-| Storm         | 200 -> 321, 771, 781      | White noise convolute with hard noise burst | ⛈       |
+| Tag           | OpenWeather ID range      | Current  Light behaviour                | Planned Light behaviour                     | Example |
+| ------------- | ------------------------- | --------------------------------------- | ------------------------------------------- | ------- |
+| Clear         | 800                       | Constant                                | Constant                                    | ☀️       |
+| Partly-cloudy | 801, 802                  | Constant                                | Intermittent sinusoidal wave, low pitch     | 🌤       |
+| Overcast      | 701->762, 803, 804        | Constant                                | Constant sinusoidal wave, low pitch         | ☁️️ 🌫     |
+| Patchy-rain   | 500 -> 504                | Intermittent sinusoidal wave, low pitch | Intermittent white noise burst              | 🌦       |
+| light-snow    | 600, 611, 612, 615        | Intermittent sinusoidal wave, low pitch | Intermittent white noise burst              | 🌦       |
+| Rain          | 520 -> 531                | Intermittent sinusoidal wave, low pitch | White noise                                 | 🌧       |
+| Snow          | 511, 601, 602, 616 -> 622 | Intermittent sinusoidal wave, low pitch | Intermittent white noise burst              | 🌨       |
+| Storm         | 200 -> 321, 771, 781      | Intermittent sinusoidal wave, low pitch | White noise convolute with hard noise burst | ⛈       |
 
 source: https://openweathermap.org/weather-conditions#Weather-Condition-Codes-2
 
